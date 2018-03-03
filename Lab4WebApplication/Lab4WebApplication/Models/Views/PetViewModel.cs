@@ -8,6 +8,7 @@ namespace Lab4WebApplication.Models.View
 {
     public class PetViewModel
     {
+        [Key]
         public int Id { get; set; }
 
         [Required]
@@ -26,6 +27,8 @@ namespace Lab4WebApplication.Models.View
         [Display(Name = "Vet Name")]
         public string VetName { get; set; }
 
-        public int UserId { get; set; }
+        public bool CheckupAlert { get; set; }
+
+        //public string UserId { get; set; }
     }
 }

@@ -1,69 +1,65 @@
-﻿using Lab4WebApplication.Data;
-using Lab4WebApplication.Data.Entities;
-using Lab4WebApplication.Models.View;
-using Lab4WebApplication.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System;
 using System.Web.Mvc;
+using log4net;
+using Microsoft.AspNet.Identity;
+using Lab4WebApplication.Models.View;
+using Lab4WebApplication.Services;
 
 namespace Lab4WebApplication.Controllers
 {
+    [Authorize]
     public class PetController : Controller
     {
-        static AppDbContext dbContext;
+        private readonly IPetService _petService;
+        private readonly ILog _log = LogManager.GetLogger(typeof(PetController));
 
-        EntityRepository entityRepository = new EntityRepository(dbContext);
+        public PetController(IPetService petService)
+        {
+            _petService = petService;
+        }
 
         public ActionResult List()
         {
+            var userId = User.Identity.GetUserId();
 
-            var pets =  GetAllPets();
+            _log.Debug("Getting list of pets for user: " + userId);
 
-            return View(pets);
-        }
+            var petViewModels = _petService.GetPetsForUser(userId);
 
-        private IEnumerable<PetViewModel> GetAllPets()
-        {
-
-            var petViewModels = new List<PetViewModel>();
-            var dbContext = new AppDbContext();
-
-            foreach (var user in dbContext.Pets)
-            {
-                var petViewModel = MapToPetViewModel(user);
-
-                petViewModels.Add(petViewModel);
-            }
-
-            return petViewModels;
+            return View(petViewModels);
         }
 
         [HttpGet]
-        public ActionResult Create(int userId)
+        public ActionResult Create()
         {
-            ViewBag.UserId = userId;
-
             return View();
         }
 
         [HttpPost]
         public ActionResult Create(PetViewModel petViewModel)
         {
-            if (ModelState.IsValid)
+            _log.Info("Creating pet");
+
+            if (!ModelState.IsValid) return View();
+
+            try
             {
-                Save(petViewModel);
-                return RedirectToAction("List", new { UserId = petViewModel.UserId });
+                var userId = User.Identity.GetUserId();
+                _petService.SavePet(userId, petViewModel);
+            }
+            catch (Exception ex)
+            {
+                _log.Error("Failed to save pet.", ex);
+                throw;
             }
 
-            return View();
+            return RedirectToAction("List");
         }
 
         [HttpGet]
         public ActionResult Edit(int id)
         {
-            var pet = GetPet(id);
+            var pet = _petService.GetPet(id);
 
             return View(pet);
         }
@@ -73,87 +69,27 @@ namespace Lab4WebApplication.Controllers
         {
             if (ModelState.IsValid)
             {
-                UpdatePet(petViewModel);
+                _petService.UpdatePet(petViewModel);
 
-                return RedirectToAction("List",new { userid =  petViewModel.UserId});
+                return RedirectToAction("List");
             }
 
             return View();
         }
 
+        [HttpGet]
         public ActionResult Details(int id)
         {
-            var pet = GetPet(id);
+            var pet = _petService.GetPet(id);
 
             return View(pet);
         }
 
-        private void UpdatePet(PetViewModel petViewModel)
-        {
-
-            var pet = entityRepository.GetPet(petViewModel.Id);
-
-            entityRepository.UpdatePet(pet);
-        }
-
-        private void CopyToPet(PetViewModel petViewModel, Pet pet)
-        {
-            pet.Name = petViewModel.Name;
-            pet.Age = petViewModel.Age;
-            pet.NextCheckup = petViewModel.NextCheckup;
-            pet.VetName = pet.VetName;
-        }
-
         public ActionResult Delete(int id)
         {
-            var pet = GetPet(id);
+            _petService.DeletePet(id);
 
-            DeletePet(id);
-
-            return RedirectToAction("List", new { UserId = pet.UserId });
-        }
-
-        private PetViewModel GetPet(int petId)
-        { 
-            var pet = entityRepository.GetPet(petId);
-
-            return MapToPetViewModel(pet);
-        }
-
-        private void Save(PetViewModel petViewModel)
-        {
-            var pet = MapToPet(petViewModel);
-
-            entityRepository.SavePet(pet);
-        }
-
-        private void DeletePet(int id)
-        {
-            entityRepository.DeletePet(id);
-        }
-
-        private Pet MapToPet(PetViewModel petViewModel)
-        {
-            return new Pet
-            {
-                Id = petViewModel.Id,
-                Name = petViewModel.Name,
-                Age = petViewModel.Age,
-                NextCheckup = petViewModel.NextCheckup,
-                VetName = petViewModel.VetName,
-            };
-        }
-
-        private PetViewModel MapToPetViewModel(Pet pet)
-        {
-            return new PetViewModel
-            {
-                Id = pet.Id,
-                Name = pet.Name,
-                Age = pet.Age,
-                NextCheckup = pet.NextCheckup,
-                VetName = pet.VetName,
-            };
+            return RedirectToAction("List");
         }
     }
 }

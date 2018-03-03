@@ -1,0 +1,4 @@
+Exercise 6
+Attempt to create a user with a password that does not match the applications password policy.  What does the application display?
+
+Answer: The password and confirmation password do not match is the message displayed when a password failed confirmation.

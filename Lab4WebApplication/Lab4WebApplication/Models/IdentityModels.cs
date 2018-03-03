@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using Lab4WebApplication.Data.Entities;
 
 namespace Lab4WebApplication.Models
 {
@@ -18,16 +19,29 @@ namespace Lab4WebApplication.Models
         }
     }
 
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    public class AppDbContext : IdentityDbContext<ApplicationUser>
     {
-        public ApplicationDbContext()
+        public AppDbContext()
             : base("DefaultConnection", throwIfV1Schema: false)
         {
         }
 
-        public static ApplicationDbContext Create()
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            return new ApplicationDbContext();
+            Database.SetInitializer(new AppDbInitializer());
+            base.OnModelCreating(modelBuilder);
         }
+
+        public virtual DbSet<Pet> Pets { get; set; }
+
+        public static AppDbContext Create()
+        {
+            return new AppDbContext();
+        }
+    }
+
+    public class AppDbInitializer : DropCreateDatabaseIfModelChanges<AppDbContext>
+    {
+        // intentionally left blank
     }
 }

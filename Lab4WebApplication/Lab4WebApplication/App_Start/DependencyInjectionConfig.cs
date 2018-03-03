@@ -9,6 +9,8 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using SimpleInjector;
 using SimpleInjector.Integration.Web;
 using SimpleInjector.Integration.Web.Mvc;
+using Lab4WebApplication.Models;
+
 namespace Lab4WebApplication.App_Start
 {
     public class DependencyInjectionConfig

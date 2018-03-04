@@ -1,10 +1,7 @@
-﻿using Lab4WebApplication.Data;
-using Lab4WebApplication.Data.Entities;
+﻿using Lab4WebApplication.Data.Entities;
 using Lab4WebApplication.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 
 namespace Lab4WebApplication.Repositories
 {

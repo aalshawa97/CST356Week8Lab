@@ -3,8 +3,6 @@ using Lab4WebApplication.Models.View;
 using Lab4WebApplication.Repositories;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace Lab4WebApplication.Services
 {
@@ -39,8 +37,6 @@ namespace Lab4WebApplication.Services
 
             public void SavePet(string userId, PetViewModel petViewModel)
             {
-                //throw new Exception("Test Exception");
-
                 var pet = MapToPet(userId, petViewModel);
 
                 _repository.SavePet(pet);

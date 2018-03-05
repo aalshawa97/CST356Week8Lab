@@ -2,3 +2,7 @@ Exercise 6
 Attempt to create a user with a password that does not match the applications password policy.  What does the application display?
 
 Answer: The password and confirmation password do not match is the message displayed when a password failed confirmation.
+
+Create a situation where the user is locked out.  Find in the database where the application stores this information.
+
+Answer: Under the database's AspNetUsers table it has a AccessFailedCount property which is checked in order to lockout the user.
